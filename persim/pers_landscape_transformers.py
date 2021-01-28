@@ -24,8 +24,6 @@ class PLE(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        # Add check that X is the output of a PH calculation.
-        # return X[self.homological_degree].compute_landscape()
         result = PersLandscapeExact(dgms=X, hom_deg=self.hom_deg)
         return result.critical_pairs
 
@@ -39,29 +37,32 @@ class PLA(BaseEstimator, TransformerMixin):
         start: float = None,
         stop: float = None,
         num_steps: int = 500,
+        verbose: bool = True
     ):
         self.hom_deg = hom_deg
         self.start = start
         self.stop = stop
         self.num_steps = num_steps
 
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
+    def fit(self, dgms, flatten: bool = False):
+        # TODO: remove infinities 
+        _dgm = dgms[self.hom_deg]
         if self.start is None:
-            _start = min(X, key=itemgetter(0))[0]
-        else:
-            _start = self.start
+            self.start = min(_dgm, key=itemgetter(0))[0]
         if self.stop is None:
-            _stop = max(X, key=itemgetter(1))[1]
-        else:
-            _stop = self.stop
+            self.stop = max(_dgm, key=itemgetter(1))[1]
+        return self
+        
+
+    def transform(self, dgms, flatten: bool = False):
         result = PersLandscapeApprox(
-            diagrams=X,
-            start=_start,
-            stop=_stop,
+            dgms=dgms,
+            start=self.start,
+            stop=self.stop,
             num_steps=self.num_steps,
             hom_deg=self.hom_deg,
         )
-        return result.values
+        if flatten:
+            return result.values.flatten()
+        else:
+            return result.values
