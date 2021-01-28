@@ -9,30 +9,9 @@ from .pers_landscape_exact import PersLandscapeExact
 from .pers_landscape_approx import PersLandscapeApprox
 
 
-__all__ = ["PLE", "PLA"]
+__all__ = ["PersistenceLandscaper"]
 
-
-class PLE(BaseEstimator, TransformerMixin):
-    """A scikit-learn transformer class for exact persistence landscapes. The transform
-    method returns the list of critical pairs for the landscape. For a vectorized
-    encoding of the landscape, using the PL_grid transformer.
-    """
-
-    def __init__(self, hom_deg: int = 0):
-        self.hom_deg = hom_deg
-
-    def fit(self, dgms, flatten: bool = False, vectorize: bool = False):
-        return self
-
-    def transform(self, dgms, flatten: bool = False):
-        result = PersLandscapeExact(dgms=dgms, hom_deg=self.hom_deg).critical_pairs
-        if flatten:
-            return np.array(result).flatten()
-        else:
-            return np.array(result)
-
-
-class PLA(BaseEstimator, TransformerMixin):
+class PersistenceLandscaper(BaseEstimator, TransformerMixin):
     """A scikit-learn transformer for converting persistence diagrams into persistence landscapes.
 
     Parameters
@@ -52,24 +31,24 @@ class PLA(BaseEstimator, TransformerMixin):
 
     Examples
     --------
-    First instantiate the PLA object::
+    First instantiate the PersisteneLandscaper::
 
-        >>> from persim import PLA
-        >>> pla = PLA(hom_deg=0, num_steps=10)
-        >>> print(pla)
+        >>> from persim import PersistenceLandscaper
+        >>> pl = PersistenceLandscaper(hom_deg=0, num_steps=10)
+        >>> print(pl)
 
-        PLA(hom_deg=1,num_steps=10)
+        PersistenceLandscaper(hom_deg=1,num_steps=10)
 
     The `fit()` method is first called a list of (-,2) numpy.ndarrays to determine the `start` and `stop` parameters of the approximating grid::
 
         >>> ex_dgms = [np.array([[0,3],[1,4]]),np.array([[1,4]])]
-        >>> pla.fit(ex_dgms)
+        >>> pl.fit(ex_dgms)
 
-        PLA(hom_deg=0, start=0, stop=4, num_steps=10)
+        PersistenceLandscaper(hom_deg=0, start=0, stop=4, num_steps=10)
 
     The `transform()` method will then compute the values of the landscape functions on the approximated grid. The `flatten` flag determines if the output should be a flattened numpy array::
 
-        >>> ex_pl = pla.transform(ex_dgms, flatten=True)
+        >>> ex_pl = pl.transform(ex_dgms, flatten=True)
         >>> ex_pl
 
         array([0.        , 0.44444444, 0.88888889, 1.33333333, 1.33333333,
@@ -92,9 +71,9 @@ class PLA(BaseEstimator, TransformerMixin):
 
     def __repr__(self):
         if self.start is None or self.stop is None:
-            return f"PLA(hom_deg={self.hom_deg}, num_steps={self.num_steps})"
+            return f"PersistenceLandscaper(hom_deg={self.hom_deg}, num_steps={self.num_steps})"
         else:
-            return f"PLA(hom_deg={self.hom_deg}, start={self.start}, stop={self.stop}, num_steps={self.num_steps})"
+            return f"PersistenceLandscaper(hom_deg={self.hom_deg}, start={self.start}, stop={self.stop}, num_steps={self.num_steps})"
 
     def fit(self, dgms, flatten: bool = False):
         # TODO: remove infinities
@@ -114,6 +93,6 @@ class PLA(BaseEstimator, TransformerMixin):
             hom_deg=self.hom_deg,
         )
         if flatten:
-            return result.values.flatten()
+            return (result.values).flatten()
         else:
             return result.values
