@@ -39,7 +39,7 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
 
         PersistenceLandscaper(hom_deg=1,num_steps=10)
 
-    The `fit()` method is first called a list of (-,2) numpy.ndarrays to determine the `start` and `stop` parameters of the approximating grid::
+    The `fit()` method is first called on a list of (-,2) numpy.ndarrays to determine the `start` and `stop` parameters of the approximating grid::
 
         >>> ex_dgms = [np.array([[0,3],[1,4]]),np.array([[1,4]])]
         >>> pl.fit(ex_dgms)
@@ -75,7 +75,15 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
         else:
             return f"PersistenceLandscaper(hom_deg={self.hom_deg}, start={self.start}, stop={self.stop}, num_steps={self.num_steps})"
 
-    def fit(self, dgms, flatten: bool = False):
+    def fit(self, dgms):
+        """ Find optimal `start` and `stop` parameters for approximating grid. 
+        
+        Parameters
+        ----------
+        
+        dgms : list of (-,2) numpy.ndarrays
+            List of persistence diagrams
+        """
         # TODO: remove infinities
         _dgm = dgms[self.hom_deg]
         if self.start is None:
@@ -85,6 +93,23 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, dgms, flatten: bool = False):
+        """ Construct persistence landscape values.
+        
+        Parameters
+        ----------
+        
+        dgms : list of (-,2) numpy.ndarrays
+            List of persistence diagrams
+        
+        flatten : bool, optional
+            Flag determining whether output values are flattened
+        
+        Returns
+        -------
+        
+        numpy.ndarray
+            Persistence Landscape values sampled on approximating grid.
+        """
         result = PersLandscapeApprox(
             dgms=dgms,
             start=self.start,
@@ -96,3 +121,8 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
             return (result.values).flatten()
         else:
             return result.values
+
+    def fit_transform(self, dgms, flatten: bool = False):
+        self.fit(dgms=dgms)
+        vals = self.transform(dgms=dgms, flatten=flatten)
+        return vals
