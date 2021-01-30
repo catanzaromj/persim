@@ -27,6 +27,9 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
 
     num_steps : int, optional
         Number of steps of approximating grid.
+    
+    flatten : bool, optional
+        Determines if the resulting values are flattened.
 
 
     Examples
@@ -63,11 +66,13 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
         start: float = None,
         stop: float = None,
         num_steps: int = 500,
+        flatten: bool = False,
     ):
         self.hom_deg = hom_deg
         self.start = start
         self.stop = stop
         self.num_steps = num_steps
+        self.flatten = flatten
 
     def __repr__(self):
         if self.start is None or self.stop is None:
@@ -92,7 +97,7 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
             self.stop = max(_dgm, key=itemgetter(1))[1]
         return self
 
-    def transform(self, dgms, flatten: bool = False):
+    def transform(self, dgms):
         """ Construct persistence landscape values.
         
         Parameters
@@ -117,12 +122,12 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
             num_steps=self.num_steps,
             hom_deg=self.hom_deg,
         )
-        if flatten:
+        if self.flatten:
             return (result.values).flatten()
         else:
             return result.values
 
-    def fit_transform(self, dgms, flatten: bool = False):
+    def fit_transform(self, dgms):
         self.fit(dgms=dgms)
-        vals = self.transform(dgms=dgms, flatten=flatten)
+        vals = self.transform(dgms=dgms)
         return vals
