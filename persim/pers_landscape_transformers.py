@@ -34,10 +34,10 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
 
     Examples
     --------
-    First instantiate the PersisteneLandscaper::
+    First instantiate the PersistenceLandscaper::
 
         >>> from persim import PersistenceLandscaper
-        >>> pl = PersistenceLandscaper(hom_deg=0, num_steps=10)
+        >>> pl = PersistenceLandscaper(hom_deg=0, num_steps=10, flatten=True)
         >>> print(pl)
 
         PersistenceLandscaper(hom_deg=1,num_steps=10)
@@ -51,7 +51,7 @@ class PersistenceLandscaper(BaseEstimator, TransformerMixin):
 
     The `transform()` method will then compute the values of the landscape functions on the approximated grid. The `flatten` flag determines if the output should be a flattened numpy array::
 
-        >>> ex_pl = pl.transform(ex_dgms, flatten=True)
+        >>> ex_pl = pl.transform(ex_dgms)
         >>> ex_pl
 
         array([0.        , 0.44444444, 0.88888889, 1.33333333, 1.33333333,
